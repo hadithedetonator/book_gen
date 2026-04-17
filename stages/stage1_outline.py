@@ -203,8 +203,8 @@ def run(
 
     log.info("Stage 1 starting for title='%s'", title)
 
-    # Insert book row (notes_before may be empty; gate runs after insert)
-    db_row  = queries.insert_book(db, title, notes_before)
+    # Get existing book or insert new (notes_before may be empty; gate runs after)
+    db_row  = queries.get_or_create_book(db, title, notes_before)
     book_id = db_row["id"]
 
     # ── Gate 1: notes_before must exist ──────────────────────────────────────

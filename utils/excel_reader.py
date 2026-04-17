@@ -119,8 +119,7 @@ def read_books(file_path: str) -> Iterator[dict]:
         log.warning("'Books' sheet has no data rows (only a header or is empty).")
         return
 
-    col_map = _resolve_headers(sheet.__class__)   # header already consumed; rebuild from rows[0]
-    # Re-derive col_map from rows[0] directly
+    # Derive col_map from the consumed header row (rows[0])
     col_map = {
         (cell.value or "").strip().lower(): idx
         for idx, cell in enumerate(rows[0])

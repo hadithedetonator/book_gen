@@ -83,21 +83,26 @@ def get_book_by_id(conn: sqlite3.Connection, book_id: str) -> Optional[dict]:
     return _row_to_dict(cur.fetchone())
 
 
-def insert_book(conn: sqlite3.Connection, title: str, notes_before: str) -> dict:
+def get_or_create_book(conn: sqlite3.Connection, title: str, notes_before: str) -> dict:
     """
-    Insert a new book row with status='pending'.
+    Fetch a book by title, or insert it if it doesn't exist.
 
     Args:
         conn:         SQLite connection.
         title:        Book title.
-        notes_before: Editorial notes before outline generation.
+        notes_before: Editorial notes (only used if creating new).
 
     Returns:
-        The inserted row as a dict.
-
-    Raises:
-        sqlite3.Error: On insertion failure.
+        The book row as a dict.
     """
+    # Check for existing book by title
+    cur = conn.execute("SELECT * FROM books WHERE title = ?", (title,))
+    existing = cur.fetchone()
+    if existing:
+        log.info("Using existing book: title='%s'", title)
+        return _row_to_dict(existing)
+
+    # Otherwise insert new
     book_id  = _new_id()
     now      = _now_iso()
     conn.execute(
@@ -108,7 +113,7 @@ def insert_book(conn: sqlite3.Connection, title: str, notes_before: str) -> dict
         (book_id, title, notes_before, BookStatus.PENDING, now, now),
     )
     conn.commit()
-    log.info("Inserted book: id=%s title='%s'", book_id, title)
+    log.info("Inserted new book: id=%s title='%s'", book_id, title)
     return get_book_by_id(conn, book_id)
 
 

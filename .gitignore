@@ -1,2 +1,7 @@
 /.venv
 .env
+*/node_modules
+outputs/*       
+*/ui_run.log
+*.db
+*/.DS_Store

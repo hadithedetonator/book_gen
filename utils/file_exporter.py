@@ -24,6 +24,25 @@ class ExportError(Exception):
     """Raised when file building or I/O fails during export."""
 
 
+def _clean_markdown(text: str) -> str:
+    """
+    Strip AI-generated Markdown tokens from the text to make it clean for Word/TXT.
+    """
+    if not text:
+        return ""
+    import re
+    # Remove # headers
+    text = re.sub(r'^#+\s*', '', text, flags=re.MULTILINE)
+    # Remove bold/italic markers (**text**, *text*, __text__, _text_)
+    text = re.sub(r'\*\*+(.*?)\*\*+', r'\1', text)
+    text = re.sub(r'\*(.*?)\*', r'\1', text)
+    text = re.sub(r'__+(.*?)__+', r'\1', text)
+    text = re.sub(r'_(.*?)_', r'\1', text)
+    # Remove excessive empty lines
+    text = re.sub(r'\n{3,}', '\n\n', text)
+    return text.strip()
+
+
 # ── .docx Builder ─────────────────────────────────────────────────────────────
 
 def build_docx(title: str, chapters: list[dict]) -> bytes:
@@ -80,7 +99,7 @@ def build_docx(title: str, chapters: list[dict]) -> bytes:
             doc.add_heading(chapter_heading, level=1)
 
             # Split content on double-newlines → each block → one paragraph
-            content: str = ch.get("content") or ""
+            content: str = _clean_markdown(ch.get("content") or "")
             paragraphs = [p.strip() for p in content.split("\n\n") if p.strip()]
             for para_text in paragraphs:
                 doc.add_paragraph(para_text)
@@ -133,8 +152,8 @@ def build_txt(title: str, chapters: list[dict]) -> bytes:
             lines.append(f"CHAPTER {ch['chapter_number']}: {ch['title'].upper()}")
             lines.append("-" * 60)
             lines.append("")
-            content: str = ch.get("content") or ""
-            lines.append(content.strip())
+            content: str = _clean_markdown(ch.get("content") or "")
+            lines.append(content)
             lines.append("")
 
         text = "\n".join(lines)
