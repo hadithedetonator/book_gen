@@ -17,8 +17,9 @@ from dotenv import load_dotenv
 
 log = logging.getLogger(__name__)
 
-# Load .env from the working directory (or any parent where it exists)
-load_dotenv()
+# Load .env from the directory where config.py exists
+env_path = os.path.join(os.path.dirname(__file__), ".env")
+load_dotenv(dotenv_path=env_path)
 
 
 def _require(key: str) -> str:
@@ -59,7 +60,7 @@ def _optional(key: str, default: str = "") -> str:
 
 # ── Ollama (local LLM) ────────────────────────────────────────────────────────
 
-OLLAMA_MODEL: str    = _optional("OLLAMA_MODEL", "llama3")
+OLLAMA_MODEL: str    = _optional("OLLAMA_MODEL", "qwen2.5-coder:3b")
 OLLAMA_BASE_URL: str = _optional("OLLAMA_BASE_URL", "http://localhost:11434")
 
 # ── SQLite (local database) ───────────────────────────────────────────────────

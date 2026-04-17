@@ -34,7 +34,7 @@ def build_docx(title: str, chapters: list[dict]) -> bytes:
         title:    The book title (used on the title page and TOC header).
         chapters: List of chapter dicts, each containing:
                     chapter_number (int), title (str), content (str).
-                  Must be in ascending chapter_number order.
+                  (Automatically sorted by chapter_number if not already).
 
     Returns:
         Raw bytes of the compiled .docx file.
@@ -42,6 +42,8 @@ def build_docx(title: str, chapters: list[dict]) -> bytes:
     Raises:
         ExportError: If the document cannot be built or serialised.
     """
+    # Defensive sort
+    chapters = sorted(chapters, key=lambda c: c.get("chapter_number", 0))
     try:
         doc = Document()
 
@@ -106,6 +108,7 @@ def build_txt(title: str, chapters: list[dict]) -> bytes:
     Args:
         title:    The book title.
         chapters: Same structure as for build_docx.
+                  (Automatically sorted by chapter_number if not already).
 
     Returns:
         UTF-8 encoded bytes of the plain-text file.
@@ -113,6 +116,8 @@ def build_txt(title: str, chapters: list[dict]) -> bytes:
     Raises:
         ExportError: If serialisation fails.
     """
+    # Defensive sort
+    chapters = sorted(chapters, key=lambda c: c.get("chapter_number", 0))
     try:
         lines: list[str] = []
 

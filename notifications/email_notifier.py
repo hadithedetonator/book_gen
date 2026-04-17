@@ -165,6 +165,7 @@ def notify_chapter_ready_for_review(title: str, book_id: str, chapter_number: in
         "       'no_notes_needed' — chapter is approved, pipeline continues automatically\n"
         "       'no'              — still reviewing (pipeline stays paused)\n"
         "  4. Re-run: python main.py --book-id <uuid> --stage 2"
+    ).format(book_id=book_id, chapter_number=chapter_number)
     _send_email(subject, _base_body(title, "chapter_ready_for_review", detail))
 
 
